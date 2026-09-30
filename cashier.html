@@ -1,0 +1,1248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>Cashier Terminal | Bamboo Chicken</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css">
+  <style>
+    body {
+      background-color: #121214;
+      color: #F3F4F6;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      margin: 0;
+      padding: 0;
+    }
+
+    .pos-header {
+      background: #1A1A1E;
+      border-bottom: 1px solid #2A2A30;
+      padding: 14px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .pos-header-inner {
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .pos-brand-logo {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+
+    .pos-badge {
+      background: #FDB813;
+      color: #121214;
+      font-size: 0.72rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .view-toggle-wrap {
+      display: flex;
+      background: #23232A;
+      padding: 3px;
+      border-radius: 8px;
+      border: 1px solid #32323D;
+    }
+
+    .pos-status-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+    }
+
+    .status-indicator {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #23232A;
+      padding: 6px 14px;
+      border-radius: 20px;
+      border: 1px solid #32323D;
+      font-weight: 600;
+    }
+
+    .status-indicator-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sync-time-text {
+      font-size: 0.76rem;
+      color: #9CA3AF;
+      border-left: 1px solid #3A3A48;
+      padding-left: 10px;
+      white-space: nowrap;
+      font-weight: 500;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #10B981;
+      display: inline-block;
+    }
+
+    .dot.error {
+      background: #EF4444;
+    }
+
+    .btn-pos {
+      background: #23232A;
+      color: #E5E7EB;
+      border: 1px solid #32323D;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-pos:hover {
+      background: #2D2D36;
+      border-color: #4B4B58;
+      color: #FFFFFF;
+    }
+
+    .btn-pos-primary {
+      background: #FDB813;
+      color: #121214;
+      border: none;
+      font-weight: 700;
+    }
+
+    .btn-pos-primary:hover {
+      background: #e5a40f;
+    }
+
+    .pos-main {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px;
+      flex: 1;
+      box-sizing: border-box;
+    }
+
+    /* Today's Operational Summary Bar */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .summary-card {
+      background: #1A1A1E;
+      border: 1px solid #2A2A30;
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+    }
+
+    .summary-card:hover {
+      transform: translateY(-2px);
+      background: #222228;
+      border-color: #3F3F4C;
+    }
+
+    .summary-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #9CA3AF;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .summary-value {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.6rem;
+      font-weight: 800;
+      color: #FFFFFF;
+    }
+
+    .summary-card.card-new { border-left: 4px solid #FDB813; }
+    .summary-card.card-new .summary-value { color: #FDB813; }
+
+    .summary-card.card-prep { border-left: 4px solid #60A5FA; }
+    .summary-card.card-prep .summary-value { color: #60A5FA; }
+
+    .summary-card.card-ready { border-left: 4px solid #34D399; }
+    .summary-card.card-ready .summary-value { color: #34D399; }
+
+    .summary-card.card-completed { border-left: 4px solid #9CA3AF; }
+    .summary-card.card-completed .summary-value { color: #9CA3AF; }
+
+    .summary-card.card-cancelled { border-left: 4px solid #F87171; }
+    .summary-card.card-cancelled .summary-value { color: #F87171; }
+
+    /* Needs Attention Operational Banner */
+    .attention-banner {
+      background: linear-gradient(135deg, rgba(253, 184, 19, 0.15), rgba(255, 90, 0, 0.12));
+      border: 1px solid rgba(253, 184, 19, 0.4);
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      animation: bannerPulse 3s infinite alternate ease-in-out;
+    }
+
+    @keyframes bannerPulse {
+      0% { border-color: rgba(253, 184, 19, 0.35); box-shadow: 0 0 10px rgba(253, 184, 19, 0.1); }
+      100% { border-color: rgba(253, 184, 19, 0.7); box-shadow: 0 0 20px rgba(253, 184, 19, 0.25); }
+    }
+
+    .attention-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .attention-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: #FDB813;
+      color: #121214;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .attention-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .attention-subtitle {
+      font-size: 0.84rem;
+      color: #D1D5DB;
+      margin-top: 2px;
+    }
+
+    .attention-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-attention-action {
+      background: #FDB813;
+      color: #121214;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      font-family: 'Outfit', sans-serif;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-attention-action:hover {
+      background: #e5a40f;
+    }
+
+    /* Order Age Badge */
+    .order-age-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #D1D5DB;
+    }
+
+    .order-age-badge.age-recent {
+      background: rgba(253, 184, 19, 0.18);
+      color: #FDB813;
+      border: 1px solid rgba(253, 184, 19, 0.3);
+    }
+
+    /* Visual Priority Card Styles */
+    .order-card.status-pending {
+      border: 2px solid #FDB813;
+      box-shadow: 0 0 16px rgba(253, 184, 19, 0.25);
+    }
+
+    .order-card.status-preparing {
+      border: 1px solid #3B82F6;
+      border-top: 4px solid #3B82F6;
+      box-shadow: 0 4px 16px rgba(59, 130, 246, 0.15);
+    }
+
+    .order-card.status-ready {
+      border: 1px solid #10B981;
+      border-top: 4px solid #10B981;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.15);
+    }
+
+    .order-card.status-completed {
+      border: 1px solid #2A2A30;
+      opacity: 0.85;
+      background: #17171A;
+    }
+
+    .order-card.status-completed:hover {
+      opacity: 1;
+    }
+
+    .order-card.status-cancelled {
+      border: 1px solid #3A2525;
+      opacity: 0.75;
+      background: #171515;
+    }
+
+    .order-card.status-cancelled:hover {
+      opacity: 0.95;
+    }
+
+    /* Toolbar */
+    .pos-toolbar {
+      background: #1A1A1E;
+      border: 1px solid #2A2A30;
+      border-radius: 14px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #2A2A30;
+    }
+
+    .filter-tab {
+      background: transparent;
+      color: #9CA3AF;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .filter-tab:hover {
+      color: #F3F4F6;
+      background: rgba(255,255,255,0.05);
+    }
+
+    .filter-tab.active {
+      background: #FDB813;
+      color: #121214;
+    }
+
+    .tab-count {
+      background: rgba(0,0,0,0.2);
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 0.75rem;
+    }
+
+    .filter-tab.active .tab-count {
+      background: rgba(0,0,0,0.15);
+      color: #121214;
+    }
+
+    .search-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .search-input-wrap {
+      flex: 1;
+      min-width: 240px;
+      position: relative;
+    }
+
+    .search-input {
+      width: 100%;
+      background: #121214;
+      border: 1px solid #32323D;
+      color: #FFFFFF;
+      padding: 10px 14px 10px 38px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      box-sizing: border-box;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #FDB813;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6B7280;
+    }
+
+    .select-input {
+      background: #121214;
+      border: 1px solid #32323D;
+      color: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .select-input:focus {
+      outline: none;
+      border-color: #FDB813;
+    }
+
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 20px;
+    }
+
+    @media (max-width: 480px) {
+      .orders-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Order Card */
+    .order-card {
+      background: #1A1A1E;
+      border: 1px solid #2A2A30;
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      position: relative;
+    }
+
+    .order-card.new-order {
+      border: 2px solid #FDB813;
+      box-shadow: 0 0 18px rgba(253, 184, 19, 0.4);
+      animation: pulseNewOrder 2s infinite alternate ease-in-out;
+    }
+
+    @keyframes pulseNewOrder {
+      0% { box-shadow: 0 0 8px rgba(253, 184, 19, 0.3); border-color: #FDB813; }
+      100% { box-shadow: 0 0 24px rgba(253, 184, 19, 0.75); border-color: #FFE082; }
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px dashed #2A2A30;
+      padding-bottom: 12px;
+    }
+
+    .order-id-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .order-time {
+      font-size: 0.78rem;
+      color: #9CA3AF;
+      margin-top: 2px;
+    }
+
+    .order-type-badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .type-delivery {
+      background: rgba(255, 90, 0, 0.15);
+      color: #FF7A30;
+      border: 1px solid rgba(255, 90, 0, 0.3);
+    }
+
+    .type-pickup {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60A5FA;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+
+    /* Order Source Badges */
+    .order-source-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 0.74rem;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+
+    .order-source-badge.source-menu {
+      background: rgba(255, 255, 255, 0.08);
+      color: #D1D5DB;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .order-source-badge.source-select {
+      background: linear-gradient(135deg, rgba(253, 184, 19, 0.22), rgba(245, 158, 11, 0.32));
+      color: #FDB813;
+      border: 1px solid rgba(253, 184, 19, 0.65);
+      box-shadow: 0 0 10px rgba(253, 184, 19, 0.2);
+    }
+
+    .order-source-badge.source-uz {
+      background: rgba(99, 102, 241, 0.18);
+      color: #A5B4FC;
+      border: 1px solid rgba(99, 102, 241, 0.45);
+    }
+
+    .customer-info {
+      background: #121214;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 0.85rem;
+    }
+
+    .cust-name {
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .cust-phone {
+      color: #FDB813;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .cust-phone:hover {
+      text-decoration: underline;
+    }
+
+    .cust-address {
+      color: #9CA3AF;
+      font-size: 0.8rem;
+      word-break: break-word;
+      white-space: pre-line;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .item-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      font-size: 0.86rem;
+      gap: 12px;
+    }
+
+    .item-qty-name {
+      display: flex;
+      gap: 8px;
+      color: #E5E7EB;
+    }
+
+    .item-qty {
+      font-weight: 800;
+      color: #FDB813;
+    }
+
+    .item-price {
+      font-weight: 700;
+      color: #FFFFFF;
+      white-space: nowrap;
+    }
+
+    .totals-box {
+      border-top: 1px dashed #2A2A30;
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.84rem;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      color: #9CA3AF;
+      font-weight: 600;
+    }
+
+    .breakdown-label {
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      font-size: 0.76rem;
+      color: #9CA3AF;
+    }
+
+    .breakdown-value {
+      font-weight: 700;
+      color: #E5E7EB;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .breakdown-row.delivery-row .breakdown-value {
+      color: #FDB813;
+    }
+
+    .grand-total-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      color: #FFFFFF;
+      margin-top: 2px;
+      padding-top: 8px;
+      border-top: 1px solid #2A2A30;
+    }
+
+    .grand-total-label {
+      font-size: 0.88rem;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+      color: #FFFFFF;
+    }
+
+    .grand-total-value {
+      font-size: 1.25rem;
+      color: #FDB813;
+      font-weight: 800;
+    }
+
+    .payment-method-tag {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #23232A;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+      color: #D1D5DB;
+    }
+
+    .badge-status {
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .badge-pending { background: rgba(245, 158, 11, 0.2); color: #FBBF24; border: 1px solid rgba(245, 158, 11, 0.4); }
+    .badge-preparing { background: rgba(59, 130, 246, 0.2); color: #60A5FA; border: 1px solid rgba(59, 130, 246, 0.4); }
+    .badge-ready { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-completed { background: rgba(107, 114, 128, 0.2); color: #9CA3AF; border: 1px solid rgba(107, 114, 128, 0.4); }
+    .badge-cancelled { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    .badge-paid { background: rgba(16, 185, 129, 0.2); color: #34D399; border: 1px solid rgba(16, 185, 129, 0.4); }
+    .badge-unpaid { background: rgba(239, 68, 68, 0.2); color: #F87171; border: 1px solid rgba(239, 68, 68, 0.4); }
+
+    /* Operational Action Area */
+    .action-area {
+      border-top: 1px solid #2A2A30;
+      padding-top: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-action {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      font-family: 'Outfit', sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-action-accept {
+      background: #FDB813;
+      color: #121214;
+    }
+
+    .btn-action-accept:hover {
+      background: #e5a40f;
+    }
+
+    .btn-action-ready {
+      background: #3B82F6;
+      color: #FFFFFF;
+    }
+
+    .btn-action-ready:hover {
+      background: #2563EB;
+    }
+
+    .btn-action-complete {
+      background: #10B981;
+      color: #FFFFFF;
+    }
+
+    .btn-action-complete:hover {
+      background: #059669;
+    }
+
+    .btn-action-dispatch {
+      background: linear-gradient(135deg, #FF5A00 0%, #E04800 100%);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(255, 90, 0, 0.25);
+    }
+
+    .btn-action-dispatch:hover {
+      background: linear-gradient(135deg, #FF6A1A 0%, #C93E00 100%);
+      transform: translateY(-1px);
+    }
+
+    .btn-dispatched-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 0.82rem;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10B981;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-sizing: border-box;
+    }
+
+    .action-done-label {
+      text-align: center;
+      padding: 8px;
+      background: #23232A;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #9CA3AF;
+    }
+
+    .btn-cancel-link {
+      background: transparent;
+      border: none;
+      color: #9CA3AF;
+      font-size: 0.78rem;
+      cursor: pointer;
+      text-decoration: underline;
+      text-align: center;
+      margin-top: 2px;
+    }
+
+    .btn-cancel-link:hover {
+      color: #F87171;
+    }
+
+    /* History Layout & Compact Rows */
+    .history-container {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .history-date-group {
+      background: #1A1A1E;
+      border: 1px solid #2A2A30;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .history-date-header {
+      background: #23232A;
+      padding: 12px 18px;
+      border-bottom: 1px solid #2A2A30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .history-date-title {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #FFFFFF;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .history-date-count {
+      background: #32323D;
+      color: #FDB813;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .history-orders-list {
+      display: flex;
+      flex-direction: column;
+      divide-y: 1px solid #23232A;
+    }
+
+    .history-order-row {
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      border-bottom: 1px solid #23232A;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    .history-order-row:last-child {
+      border-bottom: none;
+    }
+
+    .history-order-row:hover {
+      background: #23232D;
+    }
+
+    .row-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .row-bc-num {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #FFFFFF;
+      min-width: 70px;
+    }
+
+    .row-time {
+      font-size: 0.84rem;
+      color: #9CA3AF;
+      min-width: 80px;
+    }
+
+    .row-customer {
+      font-weight: 600;
+      color: #E5E7EB;
+      font-size: 0.88rem;
+      min-width: 110px;
+    }
+
+    .row-phone {
+      color: #FDB813;
+      font-size: 0.82rem;
+      min-width: 100px;
+    }
+
+    .row-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      white-space: nowrap;
+    }
+
+    .row-total {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 1.05rem;
+      color: #FDB813;
+    }
+
+    /* Modal Styling */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: #1A1A1E;
+      border: 1px solid #32323D;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 560px;
+      max-height: 88vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      animation: modalFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modalFadeIn {
+      from { opacity: 0; transform: scale(0.96); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid #2A2A30;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #23232A;
+    }
+
+    .modal-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .modal-close-btn {
+      background: #32323D;
+      border: none;
+      color: #9CA3AF;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      font-size: 1.3rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s ease;
+    }
+
+    .modal-close-btn:hover {
+      background: #3A3A48;
+      color: #FFFFFF;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .state-banner {
+      background: #1A1A1E;
+      border: 1px solid #2A2A30;
+      border-radius: 16px;
+      padding: 48px 24px;
+      text-align: center;
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .state-icon {
+      font-size: 3rem;
+    }
+
+    .state-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: #FFFFFF;
+    }
+
+    .state-desc {
+      color: #9CA3AF;
+      font-size: 0.9rem;
+      max-width: 400px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1F1F24;
+      color: #FFFFFF;
+      border: 1px solid #3A3A45;
+      padding: 12px 20px;
+      border-radius: 10px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      font-size: 0.88rem;
+      font-weight: 600;
+      z-index: 1000;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- POS Header -->
+  <header class="pos-header">
+    <div class="pos-header-inner">
+      <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+        <a href="/" class="pos-brand-logo">
+          <span>🎋 Bamboo Chicken</span>
+        </a>
+        <span class="pos-badge">Cashier Terminal</span>
+        <div class="view-toggle-wrap">
+          <button type="button" class="btn-pos" id="btn-view-today" style="background: #FDB813; color: #121214; border: none; font-size: 0.8rem; padding: 5px 12px;" onclick="switchView('today')">
+            📅 Today's Orders
+          </button>
+          <button type="button" class="btn-pos" id="btn-view-history" style="background: transparent; color: #9CA3AF; border: none; font-size: 0.8rem; padding: 5px 12px;" onclick="switchView('history')">
+            📜 History
+          </button>
+        </div>
+      </div>
+
+      <div class="pos-status-bar">
+        <div class="status-indicator">
+          <div class="status-indicator-left">
+            <span class="dot" id="status-dot"></span>
+            <span id="status-text">Connected to D1</span>
+          </div>
+          <span class="sync-time-text" id="sync-time-text">Last synced just now</span>
+        </div>
+
+        <button type="button" class="btn-pos" id="btn-toggle-sound" onclick="toggleSoundAlert()">
+          <span id="sound-icon">🔔</span> Sound: ON
+        </button>
+
+        <button type="button" class="btn-pos btn-pos-primary" onclick="fetchOrdersManual()">
+          <span>🔄</span> Refresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- POS Main Content -->
+  <main class="pos-main">
+    
+    <!-- Today Summary Bar -->
+    <div class="summary-bar" id="summary-bar">
+      <div class="summary-card" onclick="setFilter('all')" title="Filter: All Today's Orders">
+        <span class="summary-label">Today's Orders</span>
+        <span class="summary-value" id="summary-total">0</span>
+      </div>
+      <div class="summary-card card-new" onclick="setFilter('pending')" title="Filter: New / Pending Orders">
+        <span class="summary-label">⏳ New / Pending</span>
+        <span class="summary-value" id="summary-pending">0</span>
+      </div>
+      <div class="summary-card card-prep" onclick="setFilter('preparing')" title="Filter: Preparing Orders">
+        <span class="summary-label">🔥 Preparing</span>
+        <span class="summary-value" id="summary-preparing">0</span>
+      </div>
+      <div class="summary-card card-ready" onclick="setFilter('ready')" title="Filter: Ready Orders">
+        <span class="summary-label">✅ Ready</span>
+        <span class="summary-value" id="summary-ready">0</span>
+      </div>
+      <div class="summary-card card-completed" onclick="setFilter('completed')" title="Filter: Completed Orders">
+        <span class="summary-label">🎉 Completed</span>
+        <span class="summary-value" id="summary-completed">0</span>
+      </div>
+      <div class="summary-card card-cancelled" onclick="setFilter('cancelled')" title="Filter: Cancelled Orders">
+        <span class="summary-label">❌ Cancelled</span>
+        <span class="summary-value" id="summary-cancelled">0</span>
+      </div>
+    </div>
+
+    <!-- Needs Attention Section Container -->
+    <div id="attention-container"></div>
+
+    <!-- Filter Toolbar -->
+    <div class="pos-toolbar">
+      <div class="filter-tabs">
+        <button type="button" class="filter-tab active" data-filter="all" onclick="setFilter('all')">
+          All Orders <span class="tab-count" id="count-all">0</span>
+        </button>
+        <button type="button" class="filter-tab" data-filter="pending" onclick="setFilter('pending')">
+          ⏳ New / Pending <span class="tab-count" id="count-pending">0</span>
+        </button>
+        <button type="button" class="filter-tab" data-filter="preparing" onclick="setFilter('preparing')">
+          🔥 Preparing <span class="tab-count" id="count-preparing">0</span>
+        </button>
+        <button type="button" class="filter-tab" data-filter="ready" onclick="setFilter('ready')">
+          ✅ Ready <span class="tab-count" id="count-ready">0</span>
+        </button>
+        <button type="button" class="filter-tab" data-filter="completed" onclick="setFilter('completed')">
+          🎉 Completed <span class="tab-count" id="count-completed">0</span>
+        </button>
+        <button type="button" class="filter-tab" data-filter="cancelled" onclick="setFilter('cancelled')">
+          ❌ Cancelled <span class="tab-count" id="count-cancelled">0</span>
+        </button>
+      </div>
+
+      <div class="search-row">
+        <div class="search-input-wrap">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="pos-search" class="search-input" placeholder="Search by Order #, Customer Name, or Phone..." oninput="renderOrdersUI()">
+        </div>
+
+        <div id="history-date-wrap" style="display: none; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <span style="font-size: 0.82rem; font-weight: 600; color: #9CA3AF;">Filter Date:</span>
+          <button type="button" class="btn-pos" onclick="shiftHistoryDate(-1)" title="Previous Day" style="padding: 6px 10px;">◀</button>
+          <input type="date" id="history-date-picker" class="select-input" style="padding: 6px 10px; font-size: 0.85rem;" onchange="renderOrdersUI()">
+          <button type="button" class="btn-pos" onclick="shiftHistoryDate(1)" title="Next Day" style="padding: 6px 10px;">▶</button>
+          <button type="button" class="btn-pos" onclick="clearHistoryDateFilter()" style="font-size: 0.8rem; padding: 6px 10px;">Show All Dates</button>
+        </div>
+
+        <select id="pos-source-filter" class="select-input" onchange="onSourceFilterChange()">
+          <option value="all">ALL SOURCES</option>
+          <option value="menu">🎋 MENU</option>
+          <option value="select">⭐ SELECT</option>
+          <option value="uz">🎓 UZ</option>
+        </select>
+
+        <select id="pos-type-filter" class="select-input" onchange="renderOrdersUI()">
+          <option value="all">All Types (Pickup & Delivery)</option>
+          <option value="delivery">🛵 Delivery Only</option>
+          <option value="pickup">🛍️ Pickup Only</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Orders Grid -->
+    <div class="orders-grid" id="orders-container"></div>
+
+  </main>
+
+  <div class="toast" id="pos-toast"></div>
+
+  <!-- Order Details Modal -->
+  <div class="modal-overlay" id="order-details-modal" onclick="closeOrderDetailsModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div id="modal-order-title" class="modal-title">📋 Order Details</div>
+        <button type="button" class="modal-close-btn" onclick="closeOrderDetailsModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-order-body">
+        <!-- Content dynamically injected -->
+      </div>
+    </div>
+  </div>
+
+  <script src="/js/cashier.js?v=2.1.0"></script>
+</body>
+</html>
+
